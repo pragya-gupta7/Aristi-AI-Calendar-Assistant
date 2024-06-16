@@ -10,17 +10,17 @@ React, Node.js, Express, AzureAD, Microsoft Graph API, Dialogflow (service by Go
 
 ### Environment Setup
 
-1. Clone this repository and run these commands:
-   cd Calendar-Assistant
-   npm i
-   cd backend
-   npm i
+1. Clone this repository and run these commands: <br>
+   cd Calendar-Assistant <br>
+   npm i<br>
+   cd backend<br>
+   npm i<br>
 
-2. Since Dialogflow console accepts only https request. Thus, I have created self-signed certificate. You need to upload root.crt to your Microsoft management console in your PC. If the certificates in repository wont work, then do follow these steps to generate your own:
-   2.1 Create a root certificate by this command
-   openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout rootCA.key -out rootCA.crt -subj "/C=IN/ST=YourState/L=YourCity/O=YourOrganization/CN=RootCA"
-   2.2 Create a Certificate Signing Request (CSR) for the Server: Name file as server.csr.cnf
-   [req]
+2. Since Dialogflow console accepts only https request. Thus, I have created self-signed certificate. You need to upload root.crt to your Microsoft management console in your PC. If the certificates in repository wont work, then do follow these steps to generate your own: <br>
+   2.1 Create a root certificate by this command <br>
+   openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout rootCA.key -out rootCA.crt -subj "/C=IN/ST=YourState/L=YourCity/O=YourOrganization/CN=RootCA" <br>
+   2.2 Create a Certificate Signing Request (CSR) for the Server: Name file as server.csr.cnf <br>
+   [req] <br>
    default_bits = 2048
    prompt = no
    default_md = sha256
@@ -44,13 +44,13 @@ React, Node.js, Express, AzureAD, Microsoft Graph API, Dialogflow (service by Go
    Then generate the CSR:
    openssl req -new -nodes -newkey rsa:2048 -keyout server.key -out server.csr -config server.csr.cnf
 
-2.3 Create a Configuration File for Signing the Certificate: server.ext with the following content:
-authorityKeyIdentifier=keyid,issuer
-basicConstraints=CA:FALSE
-keyUsage = digitalSignature, nonRepudiation, keyEncipherment, dataEncipherment
-subjectAltName = @alt_names
+2.3 Create a Configuration File for Signing the Certificate: server.ext with the following content: <br>
+authorityKeyIdentifier=keyid,issuer <br>
+basicConstraints=CA:FALSE <br>
+keyUsage = digitalSignature, nonRepudiation, keyEncipherment, dataEncipherment <br>
+subjectAltName = @alt_names <br>
 
-    [alt_names]
+    [alt_names] 
     DNS.1 = localhost
     IP.1 = 127.0.0.1
 
