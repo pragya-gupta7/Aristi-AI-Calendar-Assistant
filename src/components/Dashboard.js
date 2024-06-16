@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { TextField, Button, Box, Paper, Typography } from "@mui/material";
+import { Button, TextField, Box, Paper, Typography } from "@mui/material";
 import { v4 as uuidv4 } from "uuid";
 
 const Dashboard = () => {
@@ -10,9 +10,10 @@ const Dashboard = () => {
     setText(event.target.value);
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (inputText) => {
+    const userInput = inputText || text;
     const sessionId = uuidv4();
-    console.log("User input:", text);
+    console.log("User input:", userInput);
 
     try {
       const res = await fetch("https://localhost:5000/dialogflow/webhook", {
@@ -21,8 +22,13 @@ const Dashboard = () => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          session: sessionId,
-          queryInput: { text: { text, languageCode: "en" } },
+          sessionId: sessionId,
+          queryInput: {
+            text: {
+              text: userInput,
+              languageCode: "en-US",
+            },
+          },
         }),
       });
 
@@ -32,10 +38,12 @@ const Dashboard = () => {
       }
 
       const data = await res.json();
-      setResponse(data.fulfillmentText);
+      console.log("Server response:", data);
+      setResponse(data.fulfillmentText || data.error);
       setText("");
     } catch (error) {
       console.error("Error:", error);
+      setResponse(error.message);
     }
   };
 
@@ -59,14 +67,14 @@ const Dashboard = () => {
           variant="outlined"
           value={text}
           onChange={handleTextInput}
-          placeholder="Type here..."
+          placeholder="Type here ..."
           sx={{ mb: 4 }}
         />
         <Box sx={{ display: "flex", justifyContent: "center", mb: 2 }}>
           <Button
             variant="contained"
             color="primary"
-            onClick={handleSubmit}
+            onClick={() => handleSubmit(text)}
             sx={{ mx: 1 }}
           >
             Submit
