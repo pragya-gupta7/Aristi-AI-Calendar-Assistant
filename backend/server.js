@@ -178,6 +178,8 @@ async function handleShowEvents(parameters, accessToken) {
       new Date(startTime).getTime() + 24 * 60 * 60000
     ).toISOString();
 
+    console.log("Fetching events from:", startTime, "to", endTime);
+
     const events = await client
       .api("/me/calendarview")
       .query({

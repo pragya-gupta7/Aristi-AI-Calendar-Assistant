@@ -58,6 +58,21 @@ const WeeklyCalendar = () => {
     return events;
   };
 
+  const eventStyleGetter = (event, start, end, isSelected) => {
+    const backgroundColor = isSelected ? "#3174ad" : "#3788d8";
+    const style = {
+      backgroundColor,
+      borderRadius: "5px",
+      opacity: 0.8,
+      color: "white",
+      border: "0px",
+      display: "block",
+    };
+    return {
+      style,
+    };
+  };
+
   return (
     <div>
       <Calendar
@@ -66,6 +81,7 @@ const WeeklyCalendar = () => {
         startAccessor="start"
         endAccessor="end"
         style={{ height: 500 }}
+        eventPropGetter={eventStyleGetter}
       />
     </div>
   );

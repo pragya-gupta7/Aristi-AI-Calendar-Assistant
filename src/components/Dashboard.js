@@ -1,6 +1,7 @@
 import React, { useState } from "react";
-import { Button, TextField, Box, Paper, Typography } from "@mui/material";
+import { Button, TextField, Box, Paper, Typography, Grid } from "@mui/material";
 import { v4 as uuidv4 } from "uuid";
+import WeeklyCalendar from "./Calendar";
 
 const Dashboard = () => {
   const [text, setText] = useState("");
@@ -10,8 +11,9 @@ const Dashboard = () => {
     setText(event.target.value);
   };
 
-  const handleSubmit = async (inputText) => {
-    const userInput = inputText || text;
+  const handleSubmit = async (event) => {
+    event.preventDefault();  // Prevent form submission from reloading the page
+    const userInput = text;
     const sessionId = uuidv4();
     console.log("User input:", userInput);
     const accessToken = localStorage.getItem("accessToken");
@@ -50,45 +52,44 @@ const Dashboard = () => {
   };
 
   return (
-    <Box
-      sx={{
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        mt: 4,
-      }}
-    >
-      <Paper
-        sx={{ p: 4, maxWidth: 600, width: "100%", textAlign: "center" }}
-        elevation={3}
-      >
-        <TextField
-          fullWidth
-          multiline
-          rows={10}
-          variant="outlined"
-          value={text}
-          onChange={handleTextInput}
-          placeholder="Type here ..."
-          sx={{ mb: 4 }}
-        />
-        <Box sx={{ display: "flex", justifyContent: "center", mb: 2 }}>
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={() => handleSubmit(text)}
-            sx={{ mx: 1 }}
-          >
-            Submit
-          </Button>
-        </Box>
-        {response && (
-          <Box sx={{ mt: 2, p: 2, border: "1px solid #ccc", borderRadius: 1 }}>
-            <Typography variant="h6">Response:</Typography>
-            <Typography>{response}</Typography>
-          </Box>
-        )}
-      </Paper>
+    <Box sx={{ p: 2 }}>
+      <Grid container spacing={2}>
+        <Grid item xs={12} md={4}>
+          <Paper sx={{ p: 2, height: "100%" }}>
+            <form onSubmit={handleSubmit}>
+              <TextField
+                fullWidth
+                multiline
+                rows={4}
+                variant="outlined"
+                value={text}
+                onChange={handleTextInput}
+                placeholder="Tell me how can I help you?"
+                sx={{ mb: 2 }}
+              />
+              <Button
+                type="submit"
+                variant="contained"
+                color="primary"
+                fullWidth
+              >
+                Send
+              </Button>
+            </form>
+            {response && (
+              <Box sx={{ mt: 2 }}>
+                <Typography variant="h6">Response:</Typography>
+                <Typography variant="body1">{response}</Typography>
+              </Box>
+            )}
+          </Paper>
+        </Grid>
+        <Grid item xs={12} md={8}>
+          <Paper sx={{ p: 2, height: "100%" }}>
+            <WeeklyCalendar />
+          </Paper>
+        </Grid>
+      </Grid>
     </Box>
   );
 };
