@@ -65,7 +65,7 @@ app.post("/dialogflow/webhook", async (req, res) => {
     } else if (intentName === "ShowEvents") {
       responseText = await handleShowEvents(parameters, accessToken);
     } else {
-      responseText = "Unknown intent";
+      responseText = JSON.stringify({ message: "Unknown intent" });
     }
 
     res.json({
@@ -140,9 +140,11 @@ async function handleScheduleEvent(parameters, accessToken) {
     // Simulate scheduling the event
     console.log("Event scheduled:", response);
 
-    return `Scheduled an event with ${person} on ${
-      dateTime || new Date().toISOString()
-    }.`;
+    return JSON.stringify({
+      message: `Scheduled an event with ${person} on ${
+        dateTime || new Date().toISOString()
+      }.`,
+    });
   } catch (error) {
     console.error("Error scheduling event:", error);
     throw error;
@@ -197,7 +199,7 @@ async function handleShowEvents(parameters, accessToken) {
     // Return event details
     const eventDetails = events.value
       .map((event) => {
-        return `Event: ${event.subject}\nStart: ${event.start.dateTime}\nEnd: ${event.end.dateTime}`;
+        return `Event: ${event.subject};`;
       })
       .join("\n\n");
 
