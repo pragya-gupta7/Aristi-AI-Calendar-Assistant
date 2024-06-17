@@ -14,12 +14,14 @@ const Dashboard = () => {
     const userInput = inputText || text;
     const sessionId = uuidv4();
     console.log("User input:", userInput);
+    const accessToken = localStorage.getItem("accessToken");
 
     try {
       const res = await fetch("https://localhost:5000/dialogflow/webhook", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
         },
         body: JSON.stringify({
           sessionId: sessionId,

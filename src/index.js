@@ -1,13 +1,9 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-
 import { ThemeProvider } from "@mui/material/styles";
 import { theme } from "./styles/theme";
-
 import { BrowserRouter } from "react-router-dom";
-
 import App from "./App";
-
 import { PublicClientApplication, EventType } from "@azure/msal-browser";
 
 const pca = new PublicClientApplication({
@@ -34,7 +30,20 @@ pca.addEventCallback((event) => {
   if (event.eventType === EventType.LOGIN_SUCCESS) {
     console.log(event);
     pca.setActiveAccount(event.payload.account);
+    pca
+      .acquireTokenSilent({
+        account: event.payload.account,
+        scopes: ["https://graph.microsoft.com/.default"],
+      })
+      .then((response) => {
+        // Store access token in localStorage
+        localStorage.setItem("accessToken", response.accessToken);
+      })
+      .catch((error) => {
+        console.error("Failed to acquire access token:", error);
+      });
   }
+  //localStorage.setItem("accessToken", event.payload.accessToken);
 });
 
 const root = ReactDOM.createRoot(document.getElementById("root"));

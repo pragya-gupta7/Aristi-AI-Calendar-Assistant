@@ -3,7 +3,6 @@ const bodyParser = require("body-parser");
 const cors = require("cors");
 const https = require("https");
 const fs = require("fs");
-const { PublicClientApplication } = require("@azure/msal-node");
 const { v4: uuidv4 } = require("uuid");
 const { Client } = require("@microsoft/microsoft-graph-client");
 const dialogflow = require("@google-cloud/dialogflow");
@@ -59,11 +58,12 @@ app.post("/dialogflow/webhook", async (req, res) => {
     console.log("Parameters:", JSON.stringify(parameters, null, 2));
 
     let responseText = "";
+    const accessToken = req.headers.authorization.split(" ")[1];
 
     if (intentName === "ScheduleEvent") {
-      responseText = await handleScheduleEvent(parameters);
+      responseText = await handleScheduleEvent(parameters, accessToken);
     } else if (intentName === "ShowEvents") {
-      responseText = await handleShowEvents(parameters);
+      responseText = await handleShowEvents(parameters, accessToken);
     } else {
       responseText = "Unknown intent";
     }
@@ -77,10 +77,10 @@ app.post("/dialogflow/webhook", async (req, res) => {
   }
 });
 
-async function handleScheduleEvent(parameters) {
+async function handleScheduleEvent(parameters, accessToken) {
   try {
     const dateTimeField = parameters["date-time"];
-    const personField = parameters["person"];
+    const personField = parameters["name"];
 
     let dateTime = "";
     let person = "";
@@ -99,32 +99,44 @@ async function handleScheduleEvent(parameters) {
         dateTimeField.listValue.values[0].structValue.fields.date_time
           .stringValue;
     }
-
-    // Check if personField exists
-    if (personField) {
-      person = personField.stringValue;
+    if (
+      personField &&
+      personField.structValue &&
+      personField.structValue.fields &&
+      personField.structValue.fields.name &&
+      personField.structValue.fields.name.stringValue
+    ) {
+      person = personField.structValue.fields.name.stringValue;
     }
 
     if (!person) {
       person = "";
     }
 
+    const client = Client.init({
+      authProvider: (done) => {
+        done(null, accessToken);
+      },
+    });
+
     const event = {
-      subject: "Meeting " + person,
+      subject: "Meeting with " + person,
       start: {
-        dateTime: dateTime || new Date().toISOString(),
-        timeZone: "UTC+5:30",
+        dateTime: endDateTime.toISOString(),
+        timeZone: "UTC",
       },
       end: {
         dateTime: new Date(
-          new Date(dateTime || new Date()).getTime() + 30 * 60000
+          new Date(dateTime).getTime() + 30 * 60000
         ).toISOString(), // Example end time, 30 minutes later
-        timeZone: "UTC+5:30",
+        timeZone: "UTC",
       },
     };
 
+    const response = await client.api("/me/events").post(event);
+
     // Simulate scheduling the event
-    console.log("event scheduled:", event);
+    console.log("Event scheduled:", response);
 
     return `Scheduled an event with ${person} on ${
       dateTime || new Date().toISOString()
@@ -135,13 +147,10 @@ async function handleScheduleEvent(parameters) {
   }
 }
 
-async function handleShowEvents(parameters) {
+async function handleShowEvents(parameters, accessToken) {
   try {
     const dateTimeField = parameters["date-time"];
-
     let dateTime = "";
-
-    // Check if dateTimeField and its properties exist
     if (
       dateTimeField &&
       dateTimeField.listValue &&
@@ -156,72 +165,44 @@ async function handleShowEvents(parameters) {
           .stringValue;
     }
 
-    const Events = [
-      {
-        subject: "Event 1",
-        start: dateTime || new Date().toISOString(),
-        end: new Date(
-          new Date(dateTime || new Date()).getTime() + 30 * 60000
-        ).toISOString(),
+    const client = Client.init({
+      authProvider: (done) => {
+        done(null, accessToken);
       },
-    ];
+    });
 
-    console.log("Events:", Events);
+    const startTime = dateTime || new Date().toISOString();
+    const endTime = new Date(
+      new Date(startTime).getTime() + 24 * 60 * 60000
+    ).toISOString();
 
-    if (Events.length === 0) {
+    const events = await client
+      .api("/me/calendarview")
+      .query({
+        startDateTime: startTime,
+        endDateTime: endTime,
+      })
+      .header("Prefer", `outlook.timezone="UTC"`)
+      .get();
+
+    console.log("Events:", events);
+
+    if (events.value.length === 0) {
       return `No events found on ${dateTime || new Date().toISOString()}.`;
     }
 
-    return `Found ${Events.length} event(s) on ${
-      dateTime || new Date().toISOString()
-    }.`;
+    // Return event details
+    const eventDetails = events.value
+      .map((event) => {
+        return `Event: ${event.subject}\nStart: ${event.start.dateTime}\nEnd: ${event.end.dateTime}`;
+      })
+      .join("\n\n");
+
+    return `Found ${events.value.length} event(s):\n\n${eventDetails}`;
   } catch (error) {
     console.error("Error showing events:", error);
     throw error;
   }
-}
-
-async function getAuthenticatedClient() {
-  try {
-    const msalConfig = {
-      auth: {
-        clientId: "329b87c4-36c5-4605-ad16-0ce2bfa65021",
-        authority: "https://login.microsoftonline.com/common",
-        redirectUri: "http://localhost:5000/redirect", // Ensure this is configured correctly
-      },
-    };
-
-    const pca = new PublicClientApplication(msalConfig);
-
-    const account = await getAccount(pca);
-    if (!account) {
-      throw new Error("User account not found");
-    }
-
-    const silentRequest = {
-      account: account,
-      scopes: ["https://graph.microsoft.com/.default"],
-    };
-
-    const authResponse = await pca.acquireTokenSilent(silentRequest);
-
-    const client = Client.init({
-      authProvider: (done) => {
-        done(null, authResponse.accessToken);
-      },
-    });
-
-    return client;
-  } catch (error) {
-    console.error("Error in getAuthenticatedClient:", error);
-    throw error;
-  }
-}
-
-async function getAccount(pca) {
-  // Logic to get the account, could be fetching from session or re-authenticating
-  const accounts = await pca.getTokenCache().getAllAccounts();
-  return accounts.length > 0 ? accounts[0] : null;
 }
 
 https.createServer(options, app).listen(PORT, () => {
