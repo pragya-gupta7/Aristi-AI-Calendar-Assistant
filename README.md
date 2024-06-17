@@ -27,8 +27,9 @@ npm i
 <li> HTTPS Configuration</li>
 Dialogflow console accepts only HTTPS requests. Thus, a self-signed certificate is required. If the certificates in the repository do not work, follow these steps to generate your own: <br>
    2.1. Create a root certificate <br>
+   
 ```
-   openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout rootCA.key -out rootCA.crt -subj "/C=IN/ST=YourState/L=YourCity/O=YourOrganization/CN=root"
+openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout rootCA.key -out rootCA.crt -subj "/C=IN/ST=YourState/L=YourCity/O=YourOrganization/CN=root"
 ```
 
    2.2 Create a Certificate Signing Request (CSR) for the Server: <br>
