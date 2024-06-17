@@ -1,89 +1,99 @@
-# AI-Assistant
+# Aristi | AI Calendar Assistant
 
-### Description
+### Overview
+Aristi is an intelligent AI calendar assistant designed to schedule events, display tasks, and understand user commands using Natural Language Processing (NLP). Authentication is managed via Azure AD portal, while user commands are processed using Dialogflow (a service by Google). The assistant utilizes Microsoft Graph API to schedule events in MS Outlook and fetch events from Outlook based on user commands. Reminders and notifications will be managed through MS outlook because it will work even when user is inactive on Aristi Platform.
 
-I have developed AI Assistant which will schedule events, show tasks and utilise NLP to understand user commands. To achieve this, we utilise Azure AD portal for authentication. We then used Dialogflow console ( service provided by Google). Dialogflow console will take user commands as input, identify intent, extract entities and give to MS Graph API for scheduling event in MS Outlook. It will use MS Graph API to fetch events from outlook to show it to user on user's command.
-
-### Tech Stack used:
-
-React, Node.js, Express, AzureAD, Microsoft Graph API, Dialogflow (service by Google).
+### Tech Stack
+<ul>
+<li>Frontend: React</li>
+<li>Backend: Node.js, Express</li>
+<li>Authentication: Azure AD</li>
+<li>APIs: Microsoft Graph API</li>
+<li>NLP: Dialogflow (Google)</li</ul>
 
 ### Environment Setup
+<ol>
+<li>Basic setup
+   To set up the environment, clone this repository and run the following commands:</li>
 
-1. Clone this repository and run these commands: <br>
-   cd Calendar-Assistant <br>
-   npm i<br>
-   cd backend<br>
-   npm i<br>
+  ```
+ cd Calendar-Assistant
+npm i
+cd backend
+npm i
+```
 
-2. Since Dialogflow console accepts only https request. Thus, I have created self-signed certificate. You need to upload root.crt to your Microsoft management console in your PC. If the certificates in repository wont work, then do follow these steps to generate your own: <br>
-   2.1 Create a root certificate by this command <br>
 
-   openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout rootCA.key -out rootCA.crt -subj "/C=IN/ST=YourState/L=YourCity/O=YourOrganization/CN=RootCA"
+<li> HTTPS Configuration</li>
+Dialogflow console accepts only HTTPS requests. Thus, a self-signed certificate is required. If the certificates in the repository do not work, follow these steps to generate your own: <br>
+   2.1. Create a root certificate <br>
+```
+   openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout rootCA.key -out rootCA.crt -subj "/C=IN/ST=YourState/L=YourCity/O=YourOrganization/CN=root"
+```
 
-   2.2 Create a Certificate Signing Request (CSR) for the Server: Name file as server.csr.cnf <br>
+   2.2 Create a Certificate Signing Request (CSR) for the Server: <br>
+      Create a file named server.csr.cnf with the following content
 
-   [req]
-   default_bits = 2048
-   prompt = no
-   default_md = sha256
-   req_extensions = req_ext
-   distinguished_name = dn
+```
+      [req]
+default_bits = 2048
+prompt = no
+default_md = sha256
+req_extensions = req_ext
+distinguished_name = dn```
 
-   [dn]
-   C = IN
-   ST = YourState
-   L = YourCity
-   O = YourOrganization
-   CN = localhost
+[dn]
+C = IN
+ST = YourState
+L = YourCity
+O = YourOrganization
+CN = localhost
 
-   [req_ext]
-   subjectAltName = @alt_names
+[req_ext]
+subjectAltName = @alt_names
 
-   [alt_names]
-   DNS.1 = localhost
-   IP.1 = 127.0.0.1
-
-   Then generate the CSR:
-
+[alt_names]
+DNS.1 = localhost
+IP.1 = 127.0.0.1
+```
+   Then Generate the CSR:
+```
    openssl req -new -nodes -newkey rsa:2048 -keyout server.key -out server.csr -config server.csr.cnf
-
+```
 2.3 Create a Configuration File for Signing the Certificate: server.ext with the following content: <br>
-
+```
 authorityKeyIdentifier=keyid,issuer
 basicConstraints=CA:FALSE
 keyUsage = digitalSignature, nonRepudiation, keyEncipherment, dataEncipherment
 subjectAltName = @alt_names
 
-    [alt_names]
-    DNS.1 = localhost
-    IP.1 = 127.0.0.1
+[alt_names]
+DNS.1 = localhost
+IP.1 = 127.0.0.1
+```
 
 2.4 Sign the Server Certificate with the Root Certificate: <br>
-
-openssl x509 -req -in server.csr -CA rootCA.crt -CAkey rootCA.key -CAcreateserial -out server.crt -days 365 -sha256 -extfile server.ext
-
+```
+openssl x509 -req -in server.csr -CA root.crt -CAkey root.key -CAcreateserial -out server.crt -days 365 -sha256 -extfile server.ext
+```
 2.5 Configure the Node.js Server using the newly created server.crt and server.key.
 
-3. We have used dialogflow-credentials.json in server.js to connect to dialogflow console. It's not allowed to upload here. So please mail me at pragyaastro007@gmail.com
+<li> Dialogflow Configuration</li>
+We use dialogflow-credentials.json in server.js to connect to the Dialogflow console. This file cannot be uploaded here. It's link is in Google form.
+</ol>
 
-### Use cases:
-
-1. #### Scheduling events:
-
-   On command of user in the format " Schedule a meet with <Person> at <date-time>", event will be scheduled in user's outlook calendar.
-
-2. #### Show Events:
-
-   If user give prompts like this: " Show my events for today", Assistant will show all the events scheduled for that date-time.
-
-3. #### Notifications and Reminders:
-
-   Assitant haven't explicitly implemented this feature but we will utilise outlook notification and reminder facility implicitly. This has advantage because despite the user is inactive on assistant, he/she will get notifications/reminders.
-
-4. #### Resolving conflicts:
-   Assistant will show calendar. User can check his/her availabilty and can give commands to assistant for scheduling new events.
+### Use Cases
+#### Scheduling Events
+<B> Command Format: </B>"Schedule a meeting with [Person] at [Time]"<br>
+<B> Action:</B>  Schedules an event in the user's Outlook calendar.
+#### Show Events
+<B> Command Examples:</B>  "Show my events for today"<br>
+<B> Action: </B> Displays all events scheduled for the specified date-time. 
+#### Notifications and Reminders
+The assistant leverages Outlook's notification and reminder functionality, ensuring users receive notifications/reminders even when not actively using the assistant.
+#### Resolving Conflicts
+Users can check their availability and instruct the assistant to schedule new events accordingly.
 
 ### Next Steps
-
-Implementing voice features and giving commands to delete certain events. At present it will be managed manually.
+Implement voice features. <br>
+Add functionality to delete events via commands.
