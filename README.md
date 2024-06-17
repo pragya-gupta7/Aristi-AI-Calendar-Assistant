@@ -8,8 +8,8 @@ Aristi is an intelligent AI calendar assistant designed to schedule events, disp
 <li>Frontend: React</li>
 <li>Backend: Node.js, Express</li>
 <li>Authentication: Azure AD</li>
-<li>APIs: Microsoft Graph API</li>
-<li>NLP: Dialogflow (Google)</li</ul>
+<li>APIs: Microsoft Graph API, Google cloud Dialogflow API</li>
+<li>NLP: Dialogflow console (Google)</li</ul>
 
 ### Environment Setup
 <ol>
