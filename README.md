@@ -14,8 +14,8 @@ Aristi is an intelligent AI calendar assistant designed to schedule events, disp
 ### Environment Setup
 <ol>
 <li>Basic setup
-   To set up the environment, clone this repository and run the following commands:</li>
-
+   To set up the environment, clone this repository and run the following commands:</li><br>
+   
   ```
  cd Calendar-Assistant
 npm i
@@ -24,8 +24,7 @@ npm i
 ```
 
 
-<li> HTTPS Configuration</li>
-Dialogflow console accepts only HTTPS requests. Thus, a self-signed certificate is required. If the certificates in the repository do not work, follow these steps to generate your own: <br>
+<li> HTTPS Configuration</li> Dialogflow console accepts only HTTPS requests. Thus, a self-signed certificate is required. If the certificates in the repository do not work, follow these steps to generate your own: <br>
    2.1. Create a root certificate <br>
    
 ```
@@ -33,7 +32,7 @@ openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout rootCA.key -out root
 ```
 
    2.2 Create a Certificate Signing Request (CSR) for the Server: <br>
-      Create a file named server.csr.cnf with the following content
+      Create a file named server.csr.cnf with the following content<br>
 
 ```
       [req]
@@ -57,7 +56,7 @@ subjectAltName = @alt_names
 DNS.1 = localhost
 IP.1 = 127.0.0.1
 ```
-   Then Generate the CSR:
+   Then Generate the CSR: <br>
 ```
    openssl req -new -nodes -newkey rsa:2048 -keyout server.key -out server.csr -config server.csr.cnf
 ```
@@ -77,7 +76,7 @@ IP.1 = 127.0.0.1
 ```
 openssl x509 -req -in server.csr -CA root.crt -CAkey root.key -CAcreateserial -out server.crt -days 365 -sha256 -extfile server.ext
 ```
-2.5 Configure the Node.js Server using the newly created server.crt and server.key.
+2.5 Configure the Node.js Server using the newly created server.crt and server.key. <br>
 
 <li> Dialogflow Configuration</li>
 We use dialogflow-credentials.json in server.js to connect to the Dialogflow console. This file cannot be uploaded here. It's link is in Google form.
