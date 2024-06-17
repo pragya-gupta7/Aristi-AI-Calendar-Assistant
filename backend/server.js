@@ -80,7 +80,7 @@ app.post("/dialogflow/webhook", async (req, res) => {
 async function handleScheduleEvent(parameters, accessToken) {
   try {
     const dateTimeField = parameters["date-time"];
-    const personField = parameters["name"];
+    const personField = parameters["person"];
 
     let dateTime = "";
     let person = "";
@@ -99,6 +99,8 @@ async function handleScheduleEvent(parameters, accessToken) {
         dateTimeField.listValue.values[0].structValue.fields.date_time
           .stringValue;
     }
+
+    // Check if personField exists
     if (
       personField &&
       personField.structValue &&
@@ -122,14 +124,14 @@ async function handleScheduleEvent(parameters, accessToken) {
     const event = {
       subject: "Meeting with " + person,
       start: {
-        dateTime: endDateTime.toISOString(),
-        timeZone: "UTC",
+        dateTime: dateTime || new Date().toISOString(),
+        timeZone: "UTC+5:30",
       },
       end: {
         dateTime: new Date(
-          new Date(dateTime).getTime() + 30 * 60000
+          new Date(dateTime || new Date()).getTime() + 30 * 60000
         ).toISOString(), // Example end time, 30 minutes later
-        timeZone: "UTC",
+        timeZone: "UTC+5:30",
       },
     };
 
@@ -182,7 +184,6 @@ async function handleShowEvents(parameters, accessToken) {
         startDateTime: startTime,
         endDateTime: endTime,
       })
-      .header("Prefer", `outlook.timezone="UTC"`)
       .get();
 
     console.log("Events:", events);
