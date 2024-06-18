@@ -1,7 +1,8 @@
 # Aristi | AI Calendar Assistant
 
 ### Overview
-Aristi is an intelligent AI calendar assistant designed to schedule events, display tasks, and understand user commands using Natural Language Processing (NLP). Authentication is managed via Azure AD portal, while user commands are processed using Dialogflow (a service by Google). The assistant utilizes Microsoft Graph API to schedule events in MS Outlook and fetch events from Outlook based on user commands. Reminders and notifications will be managed through MS outlook because it will work even when user is inactive on Aristi Platform.
+Aristi is an intelligent AI calendar assistant designed to schedule events, display tasks, and understand user commands using Natural Language Processing (NLP). Authentication is managed via Azure AD portal, while user commands are processed using Dialogflow (a service by Google). The assistant utilizes Microsoft Graph API to schedule events in MS Outlook and fetch events from Outlook based on user commands. Reminders and notifications will be managed through MS outlook because it will work even when user is inactive on Aristi Platform. <br>
+<b>Demo: </b> https://youtu.be/jXHawKsX-KI?feature=shared
 
 ### Tech Stack
 <ul>
